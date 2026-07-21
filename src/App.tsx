@@ -251,40 +251,40 @@ export default function App() {
           /* MAIN HOME DASHBOARD (Groceries tab) */
           <>
             {/* Hero Section */}
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-8">
+            <section className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
               
-              {/* Primary Large Banner */}
-              <div className="lg:col-span-8 rounded-2xl overflow-hidden relative group shadow-sm h-[260px] sm:h-[320px] lg:h-[380px]">
+              {/* Primary Large Banner - Shorter height to fit Flash Deals in view */}
+              <div className="lg:col-span-8 rounded-2xl overflow-hidden relative group shadow-sm h-[160px] sm:h-[220px] lg:h-[240px]">
                 <div 
                   className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-102" 
                   style={{ backgroundImage: `url('https://lh3.googleusercontent.com/aida/AP1WRLvVm0YHG2qKQmjThy8kX3y8Wxdkrhwvwneb0a_-6s7AX7fA3Ut1G0xyiRBYLC0hzHZgtyUhcBBmKGGLgLVLrY7lVEKfurI37MBfuQK-2g0epGs7pMqZ1Q-SCSf1wC6X3Elnj4jL51KRuGpeH7n0CFOyAWjc4mcWptxZb5Te8koUBNS3cTUEFkgEZMl0vxCe_tr5RPmR2hk7GPlU_Epe3ZSMo79hhFHslO3wUfCEsY6gP9reLr0SHw4fHg')` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-black/10 to-transparent flex items-center p-6 sm:p-12">
-                  <div className="text-white max-w-sm sm:max-w-md space-y-3.5">
-                    <span className="bg-fp-red text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/15 to-transparent flex items-center p-4 sm:p-8">
+                  <div className="text-white max-w-xs sm:max-w-md space-y-2">
+                    <span className="bg-fp-red text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                       Online Exclusive
                     </span>
-                    <h1 className="font-headline-lg text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight text-white">
+                    <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
                       Quality and Freshness Guaranteed
                     </h1>
-                    <p className="text-xs sm:text-sm text-white/95 leading-relaxed font-medium max-w-[280px] sm:max-w-none">
+                    <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
                       Handpicked by experts, chilled to preserve peak nutrients, and delivered straight to your door.
                     </p>
                     <button 
                       onClick={() => {
                         document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="bg-white text-primary hover:bg-surface-gray font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow shadow-black/25 flex items-center gap-1.5 active:scale-95"
+                      className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
                     >
                       Shop Fresh Products
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Sidebar Secondary banners */}
-              <div className="lg:col-span-4 flex flex-row lg:flex-col gap-4 h-[120px] sm:h-[150px] lg:h-[380px]">
+              {/* Sidebar Secondary banners - Scaled shorter to match */}
+              <div className="lg:col-span-4 flex flex-row lg:flex-col gap-4 h-[80px] sm:h-[110px] lg:h-[240px]">
                 <div className="flex-1 rounded-2xl overflow-hidden shadow-sm relative group cursor-pointer">
                   <img 
                     alt="Weekly offers banner" 
@@ -310,7 +310,7 @@ export default function App() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-baseline gap-2">
                   <h2 className="font-headline-md text-lg sm:text-xl font-bold text-text-main flex items-center gap-1.5">
-                    <Flame className="w-5 h-5 text-fp-red fill-fp-red" />
+                    <Flame className="w-5 h-5 text-fp-red fill-fp-red animate-[pulse_0.8s_infinite] drop-shadow-[0_0_8px_rgba(239,68,68,0.95)] scale-110" />
                     Flash Deals
                   </h2>
                   <span className="text-xs text-outline font-semibold bg-fp-red/10 text-fp-red px-2 py-0.5 rounded-full">

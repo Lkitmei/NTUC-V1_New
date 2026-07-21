@@ -64,18 +64,34 @@ export default function Header({
                 <button type="button" onClick={() => setIsEditingPostal(false)} className="text-outline hover:underline text-xs ml-1">Cancel</button>
               </form>
             ) : (
-              <button 
-                onClick={() => {
-                  setTempPostal(postalCode === 'Enter your address or postal code' ? '' : postalCode);
-                  setIsEditingPostal(true);
-                }}
-                className="flex items-center gap-1 hover:text-primary transition-colors font-medium cursor-pointer"
-                id="postal-code-trigger"
-              >
-                <MapPin className="w-3.5 h-3.5 text-primary" />
-                <span className="truncate max-w-[200px] sm:max-w-[300px]">{postalCode}</span>
-                <ChevronDown className="w-3 h-3 text-outline" />
-              </button>
+              <div className="relative flex items-center gap-1.5">
+                <button 
+                  onClick={() => {
+                    setTempPostal(postalCode === 'Enter your address or postal code' ? '' : postalCode);
+                    setIsEditingPostal(true);
+                  }}
+                  className="flex items-center gap-1.5 hover:text-primary hover:bg-primary-fixed/30 bg-primary-fixed/15 border border-primary/20 px-2.5 py-1 rounded-full transition-all duration-200 font-semibold cursor-pointer group"
+                  id="postal-code-trigger"
+                  title="Click to change delivery address"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-primary animate-bounce" />
+                  <span className="text-[11px] text-primary font-bold">Deliver to:</span>
+                  <span className="truncate max-w-[140px] sm:max-w-[200px] text-[11px] text-text-main underline decoration-dashed decoration-primary/50 group-hover:decoration-primary font-medium">{postalCode}</span>
+                  <ChevronDown className="w-3 h-3 text-primary group-hover:translate-y-0.5 transition-transform" />
+                </button>
+
+                {/* Desktop Bouncing Pointer Tooltip */}
+                <div className="hidden md:flex absolute left-full ml-3 items-center gap-1 pointer-events-none whitespace-nowrap bg-fp-red text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-md animate-[bounce_1.2s_infinite] z-20">
+                  <span className="text-xs">👈</span>
+                  <span>Click to change address!</span>
+                  <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-fp-red"></div>
+                </div>
+
+                {/* Mobile/Tablet Bouncing Indicator */}
+                <span className="inline-flex md:hidden text-xs animate-[bounce_0.8s_infinite] pointer-events-none select-none" title="Change address">
+                  👈
+                </span>
+              </div>
             )}
           </div>
           
