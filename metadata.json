@@ -1,0 +1,6 @@
+{
+  "name": "Groceries Shop",
+  "description": "An interactive, fully featured grocery store application with search, categories, persistent cart management, and seamless checkout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
