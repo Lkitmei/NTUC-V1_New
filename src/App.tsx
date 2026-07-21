@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, ArrowRight, Star, Heart, Flame, Shield, MapPin, Download, ChevronRight, ChevronLeft, MessageSquare, PhoneCall, ShoppingBag, Percent } from 'lucide-react';
+import { Sparkles, ArrowRight, Star, Heart, Flame, Shield, MapPin, Download, ChevronRight, ChevronLeft, MessageSquare, PhoneCall, ShoppingBag, Percent, Timer } from 'lucide-react';
 import { Product, CartItem } from './types';
 import { PRODUCTS, CATEGORIES, MAIN_TABS } from './data';
 import Header from './components/Header';
@@ -23,6 +23,36 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<typeof MAIN_TABS[number]>('Categories');
   const [activeCategory, setActiveCategory] = useState<typeof CATEGORIES[number]>('dairy, chilled & eggs');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Countdown Timer State
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const diff = endOfDay.getTime() - now.getTime();
+      if (diff <= 0) {
+        return { hours: 23, minutes: 59, seconds: 59 };
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      
+      return { hours, minutes, seconds };
+    };
+
+    setTimeLeft(calculateTimeLeft());
+
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
   const [cart, setCart] = useState<CartItem[]>(() => {
     const local = localStorage.getItem('fp_cart');
     return local ? JSON.parse(local) : [];
@@ -53,49 +83,30 @@ export default function App() {
       tag: "Fresh Produce",
       title: "Quality and Freshness Guaranteed",
       description: "Handpicked fresh fruits and vegetables, chilled to preserve peak nutrients, and delivered straight to your door.",
-      badgeColor: "bg-fp-red",
-      isGraphic: false
-    },
-    {
-      image: "https://lh3.googleusercontent.com/aida/AP1WRLvqZ27hzoK0jsIDjYO6ybgyfX2HlIdxWsCvhRuqtO5_Fwd5wnVK67Rpxb-3d0TCz5NB8C3LtTZyJTO-o6jcuZu-KZKOrkWob3GOhmyDKD2J1rXTte-BhqVek9dQd08cW4Anre_sbTpFsj-uNHZTdfvdxtvq1lO4zqJziau6SfI8uucIPy5U7247KTmr72GJd9w9AP50Pk9SH7nrgIMlArCtU83QiNmuA4gzPDQnl_0m_2Y-W-fgCKpfZXo",
-      tag: "Weekly Deals",
-      title: "Weekly Exclusive Offers",
-      description: "Get 20% off and save on special weekly items.",
-      badgeColor: "bg-fp-red",
-      isGraphic: true
+      badgeColor: "bg-fp-red"
     },
     {
       image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=1200",
       tag: "Great Value Specials",
       title: "Stock Up Your Pantry & Cupboard",
       description: "Enjoy bulk savings and exclusive discounts on your favorite grains, noodles, and daily household needs.",
-      badgeColor: "bg-amber-600",
-      isGraphic: false
-    },
-    {
-      image: "https://lh3.googleusercontent.com/aida/AP1WRLtyFdfsyWvwt7p47MfKeBfCeZoEqFQS7dOadI8RBogOTBQspesTMAcnheLKhvt0Quu3iD6DnXCDWmEAmfc7PqeePnuKVRzZ_2GoWUL7_lM5W_QvkjHV1pTtwgt7OuuDKPSJ8oKuxOQTHUcxW12w6DXuH5h5gYHpJkV3j_mMll90VRO7GiVeWMBEw1jgTC-cx1jdnR-luLT8GICfZKi56cH6sGBwohgAHC2-q-X-JTb0Z8yYT14odrJiPQ",
-      tag: "Price Freeze",
-      title: "Price Freeze Essentials",
-      description: "Daily essentials locked at low prices for your wallet.",
-      badgeColor: "bg-blue-600",
-      isGraphic: true
+      badgeColor: "bg-amber-600"
     },
     {
       image: "https://images.unsplash.com/photo-1543083503-087771d1471d?auto=format&fit=crop&q=80&w=1200",
       tag: "Chilled & Dairy",
       title: "Cold Drinks, Dairy & Farm Fresh Eggs",
       description: "Keep cool with refreshing beverages, high-protein yogurts, organic milk, and golden yolk eggs.",
-      badgeColor: "bg-primary",
-      isGraphic: false
+      badgeColor: "bg-primary"
     }
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSliderIndex((prev) => (prev + 1) % sliderBanners.length);
+      setSliderIndex((prev) => (prev + 1) % 3);
     }, 6000);
     return () => clearInterval(interval);
-  }, [sliderBanners.length]);
+  }, []);
 
   // --- EFFECTS FOR SYNCING ---
   useEffect(() => {
@@ -364,20 +375,15 @@ export default function App() {
           /* MAIN HOME DASHBOARD (Groceries tab) */
           <>
             {/* Hero Section */}
-            <section className="mb-6">
-              <div className="w-full rounded-2xl overflow-hidden relative group shadow-sm h-[180px] sm:h-[240px] lg:h-[280px]">
+            <section className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+              
+              {/* Primary Large Banner - Shorter height to fit Flash Deals in view */}
+              <div className="lg:col-span-8 rounded-2xl overflow-hidden relative group shadow-sm h-[160px] sm:h-[220px] lg:h-[240px]">
                 {/* Sliders with beautiful transition crossfade */}
                 {sliderBanners.map((banner, index) => (
                   <div
                     key={index}
-                    onClick={() => {
-                      if (banner.isGraphic) {
-                        document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
                     className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                      banner.isGraphic ? 'cursor-pointer' : ''
-                    } ${
                       index === sliderIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                     }`}
                   >
@@ -385,44 +391,30 @@ export default function App() {
                       className="w-full h-full bg-cover bg-center" 
                       style={{ backgroundImage: `url('${banner.image}')` }}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
                     
-                    {banner.isGraphic ? (
-                      /* Promotional design banner (already has text in the graphic) */
-                      <>
-                        <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors" />
-                        <div className="absolute bottom-4 left-4 sm:left-8 bg-black/45 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold tracking-wider uppercase">
+                    <div className="absolute inset-0 flex items-center p-4 sm:p-8">
+                      <div className="text-white max-w-xs sm:max-w-md space-y-2">
+                        <span className={`${banner.badgeColor} text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
                           {banner.tag}
-                        </div>
-                      </>
-                    ) : (
-                      /* Custom HTML overlay banner */
-                      <>
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
-                        <div className="absolute inset-0 flex items-center p-4 sm:p-8">
-                          <div className="text-white max-w-xs sm:max-w-md space-y-2">
-                            <span className={`${banner.badgeColor} text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
-                              {banner.tag}
-                            </span>
-                            <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
-                              {banner.title}
-                            </h1>
-                            <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
-                              {banner.description}
-                            </p>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
-                              }}
-                              className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
-                            >
-                              Shop Fresh Products
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
+                        </span>
+                        <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
+                          {banner.title}
+                        </h1>
+                        <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
+                          {banner.description}
+                        </p>
+                        <button 
+                          onClick={() => {
+                            document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
+                        >
+                          Shop Fresh Products
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
 
@@ -430,7 +422,7 @@ export default function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSliderIndex((prev) => (prev - 1 + sliderBanners.length) % sliderBanners.length);
+                    setSliderIndex((prev) => (prev - 1 + 3) % 3);
                   }}
                   className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
                   aria-label="Previous Slide"
@@ -440,7 +432,7 @@ export default function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSliderIndex((prev) => (prev + 1) % sliderBanners.length);
+                    setSliderIndex((prev) => (prev + 1) % 3);
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
                   aria-label="Next Slide"
@@ -450,7 +442,7 @@ export default function App() {
 
                 {/* Dots Indicators */}
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-                  {sliderBanners.map((_, i) => (
+                  {[0, 1, 2].map((i) => (
                     <button
                       key={i}
                       onClick={() => setSliderIndex(i)}
@@ -462,19 +454,56 @@ export default function App() {
                   ))}
                 </div>
               </div>
+
+              {/* Sidebar Secondary banners - Scaled shorter to match */}
+              <div className="lg:col-span-4 flex flex-row lg:flex-col gap-4 h-[80px] sm:h-[110px] lg:h-[240px]">
+                <div className="flex-1 rounded-2xl overflow-hidden shadow-sm relative group cursor-pointer">
+                  <img 
+                    alt="Weekly offers banner" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" 
+                    src="https://lh3.googleusercontent.com/aida/AP1WRLvqZ27hzoK0jsIDjYO6ybgyfX2HlIdxWsCvhRuqtO5_Fwd5wnVK67Rpxb-3d0TCz5NB8C3LtTZyJTO-o6jcuZu-KZKOrkWob3GOhmyDKD2J1rXTte-BhqVek9dQd08cW4Anre_sbTpFsj-uNHZTdfvdxtvq1lO4zqJziau6SfI8uucIPy5U7247KTmr72GJd9w9AP50Pk9SH7nrgIMlArCtU83QiNmuA4gzPDQnl_0m_2Y-W-fgCKpfZXo"
+                  />
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+                </div>
+                <div className="flex-1 rounded-2xl overflow-hidden shadow-sm relative group cursor-pointer">
+                  <img 
+                    alt="Price freeze essentials banner" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" 
+                    src="https://lh3.googleusercontent.com/aida/AP1WRLtyFdfsyWvwt7p47MfKeBfCeZoEqFQS7dOadI8RBogOTBQspesTMAcnheLKhvt0Quu3iD6DnXCDWmEAmfc7PqeePnuKVRzZ_2GoWUL7_lM5W_QvkjHV1pTtwgt7OuuDKPSJ8oKuxOQTHUcxW12w6DXuH5h5gYHpJkV3j_mMll90VRO7GiVeWMBEw1jgTC-cx1jdnR-luLT8GICfZKi56cH6sGBwohgAHC2-q-X-JTb0Z8yYT14odrJiPQ"
+                  />
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
+                </div>
+              </div>
+
             </section>
 
             {/* Flash Deals Horizontal Carousel */}
             <section className="mb-8" id="main-content-anchor">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-baseline gap-2">
+                <div className="flex flex-col gap-1.5">
                   <h2 className="font-headline-md text-lg sm:text-xl font-bold text-text-main flex items-center gap-1.5">
                     <Flame className="w-5 h-5 text-fp-red fill-fp-red animate-[pulse_0.8s_infinite] drop-shadow-[0_0_8px_rgba(239,68,68,0.95)] scale-110" />
                     Flash Deals
                   </h2>
-                  <span className="text-xs text-outline font-semibold bg-fp-red/10 text-fp-red px-2 py-0.5 rounded-full">
-                    Online Exclusive
-                  </span>
+                  
+                  {/* Countdown Timer */}
+                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-on-surface-variant font-semibold">
+                    <Timer className="w-3.5 h-3.5 text-fp-red animate-[pulse_1s_infinite]" />
+                    <span className="text-outline uppercase tracking-wider font-extrabold text-[10px]">Deals end in</span>
+                    <div className="flex items-center gap-0.5 font-mono text-xs font-bold">
+                      <span className="bg-fp-red text-white px-2 py-0.5 rounded shadow-sm min-w-[22px] text-center">
+                        {String(timeLeft.hours).padStart(2, '0')}
+                      </span>
+                      <span className="text-fp-red px-0.5 animate-pulse">:</span>
+                      <span className="bg-fp-red text-white px-2 py-0.5 rounded shadow-sm min-w-[22px] text-center">
+                        {String(timeLeft.minutes).padStart(2, '0')}
+                      </span>
+                      <span className="text-fp-red px-0.5 animate-pulse">:</span>
+                      <span className="bg-fp-red text-white px-2 py-0.5 rounded shadow-sm min-w-[22px] text-center">
+                        {String(timeLeft.seconds).padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-3">

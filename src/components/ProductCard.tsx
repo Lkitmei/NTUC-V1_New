@@ -78,11 +78,6 @@ export default function ProductCard({
           src={product.image}
           referrerPolicy="no-referrer"
         />
-        {product.isOnlineExclusive && (
-          <span className="absolute bottom-1 right-1 bg-surface-container-high/90 text-on-surface-variant text-[9px] font-bold px-1.5 py-0.5 rounded">
-            Online Exclusive
-          </span>
-        )}
       </div>
 
       {/* Product Content info */}
