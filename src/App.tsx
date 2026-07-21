@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, ArrowRight, Star, Heart, Flame, Shield, MapPin, Download, ChevronRight, MessageSquare, PhoneCall, ShoppingBag } from 'lucide-react';
+import { Sparkles, ArrowRight, Star, Heart, Flame, Shield, MapPin, Download, ChevronRight, ChevronLeft, MessageSquare, PhoneCall, ShoppingBag, Percent } from 'lucide-react';
 import { Product, CartItem } from './types';
-import { PRODUCTS, CATEGORIES } from './data';
+import { PRODUCTS, CATEGORIES, MAIN_TABS } from './data';
 import Header from './components/Header';
 import ProductCard from './components/ProductCard';
 import ProductModal from './components/ProductModal';
@@ -11,9 +11,17 @@ import StoreFinderTab from './components/StoreFinderTab';
 import HelpCentreModal from './components/HelpCentreModal';
 import AuthModal from './components/AuthModal';
 
+const formatCategoryName = (cat: string) => {
+  if (cat === 'dairy, chilled & eggs') return 'Dairy, Chilled & Eggs';
+  if (cat === 'fruits & vegetables') return 'Fruits & Vegetables';
+  if (cat === 'health & wellness') return 'Health & Wellness';
+  return cat.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
+
 export default function App() {
   // --- STATE ---
-  const [activeTab, setActiveTab] = useState<typeof CATEGORIES[number]>('Groceries');
+  const [activeTab, setActiveTab] = useState<typeof MAIN_TABS[number]>('Categories');
+  const [activeCategory, setActiveCategory] = useState<typeof CATEGORIES[number]>('dairy, chilled & eggs');
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>(() => {
     const local = localStorage.getItem('fp_cart');
@@ -36,6 +44,39 @@ export default function App() {
     isOpen: false,
     type: 'login'
   });
+
+  // --- IMAGE SLIDER FOR HERO BANNER ---
+  const [sliderIndex, setSliderIndex] = useState(0);
+  const sliderBanners = [
+    {
+      image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200",
+      tag: "Fresh Produce",
+      title: "Quality and Freshness Guaranteed",
+      description: "Handpicked fresh fruits and vegetables, chilled to preserve peak nutrients, and delivered straight to your door.",
+      badgeColor: "bg-fp-red"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=1200",
+      tag: "Great Value Specials",
+      title: "Stock Up Your Pantry & Cupboard",
+      description: "Enjoy bulk savings and exclusive discounts on your favorite grains, noodles, and daily household needs.",
+      badgeColor: "bg-amber-600"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1543083503-087771d1471d?auto=format&fit=crop&q=80&w=1200",
+      tag: "Chilled & Dairy",
+      title: "Cold Drinks, Dairy & Farm Fresh Eggs",
+      description: "Keep cool with refreshing beverages, high-protein yogurts, organic milk, and golden yolk eggs.",
+      badgeColor: "bg-primary"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSliderIndex((prev) => (prev + 1) % 3);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
 
   // --- EFFECTS FOR SYNCING ---
   useEffect(() => {
@@ -124,10 +165,7 @@ export default function App() {
   const whatsHotNow = PRODUCTS.slice(10, 15); // Hot items
 
   const getProductsForTab = () => {
-    if (activeTab === 'Groceries') {
-      return PRODUCTS.filter((p) => p.category === 'Groceries');
-    }
-    return PRODUCTS.filter((p) => p.category === activeTab);
+    return PRODUCTS.filter((p) => p.category === activeCategory);
   };
 
   const isProductInCart = (id: string) => {
@@ -162,6 +200,12 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={(tab) => {
           setActiveTab(tab);
+          // Auto-scroll to main content area
+          document.getElementById('main-content-anchor')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        activeCategory={activeCategory}
+        setActiveCategory={(cat) => {
+          setActiveCategory(cat);
           // Auto-scroll to main content area
           document.getElementById('main-content-anchor')?.scrollIntoView({ behavior: 'smooth' });
         }}
@@ -218,17 +262,65 @@ export default function App() {
                     onAddToCart={handleAddToCart}
                     onProductClick={(p) => setSelectedProduct(p)}
                     isAdded={isProductInCart(product.id)}
+                    quantity={getProductCartQty(product.id)}
+                    onUpdateQuantity={handleUpdateQty}
                   />
                 ))}
               </div>
             )}
           </div>
-        ) : activeTab !== 'Groceries' ? (
+        ) : activeTab === 'Promotion' ? (
+          /* Specialized Promotion Page */
+          <div className="space-y-6 animate-fade-in" id="main-content-anchor">
+            {/* Promotion Header Banner */}
+            <div className="bg-gradient-to-r from-fp-red to-orange-500 rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden shadow-md">
+              <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="max-w-xl relative z-10 space-y-2">
+                <span className="bg-white/20 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  🔥 Promotion Center
+                </span>
+                <h2 className="font-headline-lg text-xl sm:text-3xl font-extrabold leading-tight tracking-tight text-white">
+                  Red Hot Promotions & Savings!
+                </h2>
+                <p className="text-xs sm:text-sm text-white/95 leading-relaxed font-medium">
+                  Shop direct from our handpicked deals. Enjoy daily discounts, buy-one-get-one-free bundles, and bulk savings across all categories!
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-b border-surface-container pb-4">
+              <div className="flex items-baseline gap-2">
+                <h3 className="font-headline-md text-lg sm:text-xl font-bold text-text-main flex items-center gap-1.5">
+                  <Flame className="w-5 h-5 text-fp-red fill-fp-red animate-pulse" />
+                  All Active Promotions
+                </h3>
+                <span className="text-xs text-outline font-semibold bg-fp-red/10 text-fp-red px-2 py-0.5 rounded-full">
+                  Great Savings
+                </span>
+              </div>
+            </div>
+
+            {/* Filtered Products with Savings/Promos */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {PRODUCTS.filter(p => p.originalPrice || p.badgeType === 'save' || p.badgeType === 'any2' || p.badgeType === 'buy2' || p.badgeType === 'spend').map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onProductClick={(p) => setSelectedProduct(p)}
+                  isAdded={isProductInCart(product.id)}
+                  quantity={getProductCartQty(product.id)}
+                  onUpdateQuantity={handleUpdateQty}
+                />
+              ))}
+            </div>
+          </div>
+        ) : activeCategory !== 'dairy, chilled & eggs' ? (
           /* Specialized Categorized Pages (Wholesale, Pharmacy, Everything Else) */
           <div className="space-y-6" id="main-content-anchor">
             <div className="flex items-baseline gap-2 border-b border-surface-container pb-4">
               <h2 className="font-headline-md text-xl sm:text-2xl font-bold text-text-main">
-                FairPrice {activeTab}
+                FairPrice {formatCategoryName(activeCategory)}
               </h2>
               <span className="text-sm text-on-surface-variant">
                 Premium high-quality items selected for you
@@ -243,6 +335,8 @@ export default function App() {
                   onAddToCart={handleAddToCart}
                   onProductClick={(p) => setSelectedProduct(p)}
                   isAdded={isProductInCart(product.id)}
+                  quantity={getProductCartQty(product.id)}
+                  onUpdateQuantity={handleUpdateQty}
                 />
               ))}
             </div>
@@ -255,31 +349,79 @@ export default function App() {
               
               {/* Primary Large Banner - Shorter height to fit Flash Deals in view */}
               <div className="lg:col-span-8 rounded-2xl overflow-hidden relative group shadow-sm h-[160px] sm:h-[220px] lg:h-[240px]">
-                <div 
-                  className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-102" 
-                  style={{ backgroundImage: `url('https://lh3.googleusercontent.com/aida/AP1WRLvVm0YHG2qKQmjThy8kX3y8Wxdkrhwvwneb0a_-6s7AX7fA3Ut1G0xyiRBYLC0hzHZgtyUhcBBmKGGLgLVLrY7lVEKfurI37MBfuQK-2g0epGs7pMqZ1Q-SCSf1wC6X3Elnj4jL51KRuGpeH7n0CFOyAWjc4mcWptxZb5Te8koUBNS3cTUEFkgEZMl0vxCe_tr5RPmR2hk7GPlU_Epe3ZSMo79hhFHslO3wUfCEsY6gP9reLr0SHw4fHg')` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/15 to-transparent flex items-center p-4 sm:p-8">
-                  <div className="text-white max-w-xs sm:max-w-md space-y-2">
-                    <span className="bg-fp-red text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      Online Exclusive
-                    </span>
-                    <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
-                      Quality and Freshness Guaranteed
-                    </h1>
-                    <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
-                      Handpicked by experts, chilled to preserve peak nutrients, and delivered straight to your door.
-                    </p>
-                    <button 
-                      onClick={() => {
-                        document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
-                    >
-                      Shop Fresh Products
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                {/* Sliders with beautiful transition crossfade */}
+                {sliderBanners.map((banner, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                      index === sliderIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    }`}
+                  >
+                    <div 
+                      className="w-full h-full bg-cover bg-center" 
+                      style={{ backgroundImage: `url('${banner.image}')` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
+                    
+                    <div className="absolute inset-0 flex items-center p-4 sm:p-8">
+                      <div className="text-white max-w-xs sm:max-w-md space-y-2">
+                        <span className={`${banner.badgeColor} text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
+                          {banner.tag}
+                        </span>
+                        <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
+                          {banner.title}
+                        </h1>
+                        <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
+                          {banner.description}
+                        </p>
+                        <button 
+                          onClick={() => {
+                            document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
+                        >
+                          Shop Fresh Products
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
+                ))}
+
+                {/* Left/Right Arrows */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSliderIndex((prev) => (prev - 1 + 3) % 3);
+                  }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
+                  aria-label="Previous Slide"
+                >
+                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSliderIndex((prev) => (prev + 1) % 3);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
+                  aria-label="Next Slide"
+                >
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* Dots Indicators */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+                  {[0, 1, 2].map((i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSliderIndex(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                        i === sliderIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/75'
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -359,6 +501,8 @@ export default function App() {
                       onAddToCart={handleAddToCart}
                       onProductClick={(p) => setSelectedProduct(p)}
                       isAdded={isProductInCart(product.id)}
+                      quantity={getProductCartQty(product.id)}
+                      onUpdateQuantity={handleUpdateQty}
                     />
                   </div>
                 ))}
@@ -392,6 +536,8 @@ export default function App() {
                     onAddToCart={handleAddToCart}
                     onProductClick={(p) => setSelectedProduct(p)}
                     isAdded={isProductInCart(product.id)}
+                    quantity={getProductCartQty(product.id)}
+                    onUpdateQuantity={handleUpdateQty}
                   />
                 ))}
               </div>
@@ -593,6 +739,7 @@ export default function App() {
         onClose={() => setSelectedProduct(null)}
         onAddToCartWithQty={handleAddToCartWithQty}
         currentCartQty={selectedProduct ? getProductCartQty(selectedProduct.id) : 0}
+        onSelectProduct={(p) => setSelectedProduct(p)}
       />
 
       {/* Cart Slider Drawer */}

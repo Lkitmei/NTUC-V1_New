@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { X, Star, ShoppingCart, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
+import { X, Star, ShoppingCart, ShieldCheck, Truck, RefreshCw, Zap, Flame, Sparkles, Plus } from 'lucide-react';
 import { Product } from '../types';
+import { PRODUCTS } from '../data';
 
 interface ProductModalProps {
   product: Product | null;
   onClose: () => void;
   onAddToCartWithQty: (product: Product, quantity: number) => void;
   currentCartQty: number;
+  onSelectProduct?: (product: Product) => void;
 }
 
 export default function ProductModal({
@@ -14,8 +16,13 @@ export default function ProductModal({
   onClose,
   onAddToCartWithQty,
   currentCartQty,
+  onSelectProduct,
 }: ProductModalProps) {
   const [quantity, setQuantity] = useState(1);
+
+  React.useEffect(() => {
+    setQuantity(1);
+  }, [product?.id]);
 
   if (!product) return null;
 
@@ -52,7 +59,8 @@ export default function ProductModal({
             referrerPolicy="no-referrer"
           />
           {product.badge && (
-            <span className="absolute top-4 left-4 bg-fp-red text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+            <span className="absolute top-4 left-4 bg-fp-red text-white text-xs font-bold px-3 py-1 rounded-full shadow flex items-center gap-1">
+              {product.badgeType === 'any2' && <Flame className="w-3.5 h-3.5 fill-white text-white animate-pulse" />}
               {product.badge}
             </span>
           )}
@@ -105,10 +113,16 @@ export default function ProductModal({
                 Save ${(product.originalPrice - product.price).toFixed(2)} instantly!
               </span>
             )}
+            {product.badgeType === 'any2' && (
+              <div className="mt-2 flex items-center gap-1.5 bg-fp-red/10 border border-fp-red/20 text-fp-red px-2.5 py-1 rounded-lg text-xs font-extrabold animate-[pulse_2s_infinite]">
+                <Flame className="w-3.5 h-3.5 fill-fp-red text-fp-red animate-pulse" />
+                <span>Any 2 at $9.95 — Mix & Match Offer!</span>
+              </div>
+            )}
           </div>
 
           {/* Description */}
-          <div className="mb-6 flex-1">
+          <div className="mb-4 flex-1">
             <h4 className="text-xs font-bold text-outline uppercase tracking-wider mb-2">
               Product Description
             </h4>
@@ -116,6 +130,54 @@ export default function ProductModal({
               {product.description}
             </p>
           </div>
+
+          {/* Cross-selling items for Any 2 promo */}
+          {product.badgeType === 'any2' && (
+            <div className="border-t border-surface-container pt-3 mb-4">
+              <h4 className="text-xs font-bold text-outline uppercase tracking-wider mb-2 flex items-center gap-1.5 text-fp-red">
+                <Sparkles className="w-3.5 h-3.5 text-fp-red fill-fp-red" />
+                Other "Any 2 at $9.95" Items
+              </h4>
+              <p className="text-[11px] text-on-surface-variant mb-2">
+                Add these other eligible items to mix & match and qualify for the $9.95 deal:
+              </p>
+              <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                {PRODUCTS.filter(p => p.badgeType === 'any2' && p.id !== product.id).map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => onSelectProduct?.(item)}
+                    className="flex items-center gap-2.5 p-2 rounded-xl border border-surface-gray hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer bg-surface-gray/35"
+                  >
+                    <img
+                      alt={item.name}
+                      src={item.image}
+                      className="w-10 h-10 object-contain rounded bg-white p-1"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h5 className="text-[11px] font-bold text-text-main truncate hover:text-primary transition-colors">
+                        {item.name}
+                      </h5>
+                      <span className="text-[10px] text-outline font-semibold">
+                        ${item.price.toFixed(2)} {item.unit && `• ${item.unit}`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddToCartWithQty(item, 1);
+                      }}
+                      className="text-[10px] bg-primary text-white hover:bg-primary-container font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <Plus className="w-2.5 h-2.5" />
+                      Add 1
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Delivery highlights */}
           <div className="space-y-2 mb-6 text-xs text-on-surface-variant border-t border-surface-container pt-4">
@@ -162,7 +224,7 @@ export default function ProductModal({
                 id="qty-modal-add-btn"
               >
                 <ShoppingCart className="w-4.5 h-4.5" />
-                Add {quantity} to Cart — ${(product.price * quantity).toFixed(2)}
+                Add Cart — ${(product.price * quantity).toFixed(2)}
               </button>
             </div>
             {currentCartQty > 0 && (

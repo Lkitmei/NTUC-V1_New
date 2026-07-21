@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Heart, Plus, Check } from 'lucide-react';
+import { Star, Heart, Plus, Check, Minus } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -8,6 +8,8 @@ interface ProductCardProps {
   onAddToCart: (product: Product) => void;
   onProductClick: (product: Product) => void;
   isAdded: boolean;
+  quantity: number;
+  onUpdateQuantity: (productId: string, quantity: number) => void;
 }
 
 export default function ProductCard({
@@ -15,6 +17,8 @@ export default function ProductCard({
   onAddToCart,
   onProductClick,
   isAdded,
+  quantity,
+  onUpdateQuantity,
 }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -121,31 +125,58 @@ export default function ProductCard({
             )}
           </div>
 
-          {/* Add To Cart button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(product);
-            }}
-            className={`w-full py-2 border rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 ${
-              isAdded
-                ? 'bg-primary border-primary text-white hover:bg-primary-container'
-                : 'bg-white border-primary text-primary hover:bg-primary-fixed/20'
-            }`}
-            id={`add-to-cart-btn-${product.id}`}
-          >
-            {isAdded ? (
-              <>
-                <Check className="w-4 h-4" />
-                Added
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4" />
-                Add to Cart
-              </>
-            )}
-          </button>
+          {/* Add To Cart button / Quantity Selector */}
+          {isAdded && quantity > 0 ? (
+            <div 
+              className="w-full flex items-center justify-between border border-primary bg-primary text-white rounded-xl overflow-hidden font-bold text-xs h-[34px]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdateQuantity(product.id, quantity - 1);
+                }}
+                className="px-3.5 h-full hover:bg-primary-container flex items-center justify-center transition-colors cursor-pointer active:scale-95"
+                title="Decrease quantity"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+              <span className="flex-1 text-center text-xs font-extrabold select-none">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (quantity < 10) {
+                    onUpdateQuantity(product.id, quantity + 1);
+                  }
+                }}
+                disabled={quantity >= 10}
+                className={`px-3.5 h-full flex items-center justify-center transition-colors cursor-pointer active:scale-95 ${
+                  quantity >= 10 
+                    ? 'opacity-40 cursor-not-allowed' 
+                    : 'hover:bg-primary-container'
+                }`}
+                title={quantity >= 10 ? 'Maximum limit of 10 reached' : 'Increase quantity'}
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
+              className="w-full h-[34px] border border-primary rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 bg-white text-primary hover:bg-primary-fixed/20 cursor-pointer"
+              id={`add-to-cart-btn-${product.id}`}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add to Cart
+            </button>
+          )}
         </div>
       </div>
     </div>

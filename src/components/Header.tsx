@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Search, MapPin, User, LogOut, HelpCircle, ChevronDown, Sparkles } from 'lucide-react';
-import { CATEGORIES } from '../data';
+import { ShoppingCart, Search, MapPin, User, LogOut, HelpCircle, ChevronDown, Sparkles, Flame, X } from 'lucide-react';
+import { CATEGORIES, MAIN_TABS } from '../data';
 
 interface HeaderProps {
-  activeTab: typeof CATEGORIES[number];
-  setActiveTab: (tab: typeof CATEGORIES[number]) => void;
+  activeTab: typeof MAIN_TABS[number];
+  setActiveTab: (tab: typeof MAIN_TABS[number]) => void;
+  activeCategory: typeof CATEGORIES[number];
+  setActiveCategory: (category: typeof CATEGORIES[number]) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   cartItemsCount: number;
@@ -15,9 +17,18 @@ interface HeaderProps {
   onLogout: () => void;
 }
 
+const formatCategoryName = (cat: string) => {
+  if (cat === 'dairy, chilled & eggs') return 'Dairy, Chilled & Eggs';
+  if (cat === 'fruits & vegetables') return 'Fruits & Vegetables';
+  if (cat === 'health & wellness') return 'Health & Wellness';
+  return cat.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
+
 export default function Header({
   activeTab,
   setActiveTab,
+  activeCategory,
+  setActiveCategory,
   searchQuery,
   setSearchQuery,
   cartItemsCount,
@@ -30,6 +41,15 @@ export default function Header({
   const [postalCode, setPostalCode] = useState('Enter your address or postal code');
   const [isEditingPostal, setIsEditingPostal] = useState(false);
   const [tempPostal, setTempPostal] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showAddressPrompt, setShowAddressPrompt] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fp_show_address_prompt');
+      return saved !== 'false';
+    } catch (e) {
+      return true;
+    }
+  });
 
   const handlePostalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,16 +101,34 @@ export default function Header({
                 </button>
 
                 {/* Desktop Bouncing Pointer Tooltip */}
-                <div className="hidden md:flex absolute left-full ml-3 items-center gap-1 pointer-events-none whitespace-nowrap bg-fp-red text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-md animate-[bounce_1.2s_infinite] z-20">
-                  <span className="text-xs">👈</span>
-                  <span>Click to change address!</span>
-                  <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-fp-red"></div>
-                </div>
+                {showAddressPrompt && (
+                  <div className="hidden md:flex absolute left-full ml-3 items-center gap-1.5 pointer-events-auto whitespace-nowrap bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg animate-[bounce_1.2s_infinite] z-20">
+                    <span className="text-sm select-none">👈</span>
+                    <span className="font-extrabold tracking-wide">Click to change address!</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAddressPrompt(false);
+                        try {
+                          localStorage.setItem('fp_show_address_prompt', 'false');
+                        } catch (err) {}
+                      }}
+                      className="ml-1.5 hover:bg-white/25 p-0.5 rounded transition-all cursor-pointer flex items-center justify-center text-white/90 hover:text-white"
+                      title="Dismiss prompt"
+                      id="close-address-prompt"
+                    >
+                      <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
+                    <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-amber-600"></div>
+                  </div>
+                )}
 
                 {/* Mobile/Tablet Bouncing Indicator */}
-                <span className="inline-flex md:hidden text-xs animate-[bounce_0.8s_infinite] pointer-events-none select-none" title="Change address">
-                  👈
-                </span>
+                {showAddressPrompt && (
+                  <span className="inline-flex md:hidden text-sm animate-[bounce_0.8s_infinite] pointer-events-none select-none" title="Change address">
+                    👈
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -146,7 +184,8 @@ export default function Header({
           {/* Logo */}
           <div 
             onClick={() => {
-              setActiveTab('Groceries');
+              setActiveTab('Categories');
+              setActiveCategory('dairy, chilled & eggs');
               setSearchQuery('');
             }}
             className="flex items-center gap-2 cursor-pointer flex-shrink-0 group"
@@ -159,7 +198,7 @@ export default function Header({
             />
             <div className="hidden sm:block">
               <span className="font-headline-md tracking-tight text-primary text-lg block leading-none font-bold">FairPrice</span>
-              <span className="text-[10px] text-fp-red font-bold uppercase tracking-wider block">Groceries</span>
+              <span className="text-[10px] text-fp-red font-bold uppercase tracking-wider block">Online Store</span>
             </div>
           </div>
 
@@ -202,29 +241,131 @@ export default function Header({
           </button>
         </div>
 
-        {/* Categories Tab Bar */}
-        <div className="flex items-center gap-1 mt-2 overflow-x-auto hide-scrollbar border-t border-surface-container pt-2">
-          {CATEGORIES.map((tab) => {
-            const isActive = activeTab === tab;
-            return (
+        {/* Main Tab Bar (Categories, Promotion, Store Finder) */}
+        <div className="flex items-center justify-between mt-2 border-t border-surface-container pt-2">
+          <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar flex-1 py-1">
+            {/* Categories Main Tab with Click Dropdown */}
+            <div className="relative">
               <button
-                key={tab}
+                type="button"
                 onClick={() => {
-                  setActiveTab(tab);
+                  setActiveTab('Categories');
                   setSearchQuery('');
+                  setIsDropdownOpen(!isDropdownOpen);
                 }}
-                className={`py-1.5 px-4 rounded-lg font-bold text-xs whitespace-nowrap transition-all duration-200 ${
-                  isActive
+                className={`py-1.5 px-4 rounded-lg font-bold text-xs whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'Categories'
                     ? 'bg-primary text-white shadow-sm'
                     : 'text-on-surface-variant hover:text-primary hover:bg-surface-gray'
                 }`}
-                id={`category-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
+                id="main-tab-categories"
               >
-                {tab}
+                <span>Categories</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-            );
-          })}
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <>
+                  {/* Backdrop overlay to close when clicking outside */}
+                  <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                  <div 
+                    className="absolute left-0 mt-1.5 w-48 bg-white border border-surface-variant rounded-xl shadow-lg py-1.5 z-50 animate-in fade-in duration-100"
+                  >
+                    {CATEGORIES.map((cat) => {
+                      const isCatActive = activeTab === 'Categories' && activeCategory === cat;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            setActiveTab('Categories');
+                            setActiveCategory(cat);
+                            setSearchQuery('');
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-xs font-bold transition-all duration-150 flex items-center justify-between cursor-pointer ${
+                            isCatActive
+                              ? 'bg-primary/10 text-primary font-extrabold'
+                              : 'text-text-main hover:bg-surface-gray hover:text-primary'
+                          }`}
+                        >
+                          <span>{formatCategoryName(cat)}</span>
+                          {isCatActive && <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Promotion Main Tab */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Promotion');
+                setSearchQuery('');
+                setIsDropdownOpen(false);
+              }}
+              className={`py-1.5 px-4 rounded-lg font-bold text-xs whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'Promotion'
+                  ? 'bg-fp-red text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-fp-red hover:bg-fp-red/10'
+              }`}
+              id="main-tab-promotion"
+            >
+              <Flame className={`w-3.5 h-3.5 text-fp-red ${activeTab === 'Promotion' ? 'text-white animate-pulse' : 'animate-[pulse_1s_infinite]'}`} />
+              <span>Promotion</span>
+            </button>
+
+            {/* Store Finder Main Tab */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Store Finder');
+                setSearchQuery('');
+                setIsDropdownOpen(false);
+              }}
+              className={`py-1.5 px-4 rounded-lg font-bold text-xs whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'Store Finder'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-gray'
+              }`}
+              id="main-tab-store-finder"
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              <span>Store Finder</span>
+            </button>
+          </div>
         </div>
+
+        {/* Subcategories Pills bar - only visible when Categories is active */}
+        {activeTab === 'Categories' && (
+          <div className="flex items-center gap-1.5 mt-2 overflow-x-auto hide-scrollbar border-t border-surface-container pt-2 animate-in slide-in-from-top-1 duration-200">
+            <span className="text-[10px] text-outline font-extrabold uppercase tracking-wider px-2 py-1">Browse:</span>
+            {CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(cat);
+                    setSearchQuery('');
+                  }}
+                  className={`py-1 px-3 rounded-full font-bold text-[11px] whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                    isActive
+                      ? 'bg-primary-fixed text-on-primary-fixed border border-primary shadow-sm'
+                      : 'text-text-main bg-surface-gray hover:bg-primary-fixed/20 border border-transparent'
+                  }`}
+                >
+                  {formatCategoryName(cat)}
+                </button>
+              );
+            })}
+          </div>
+        )}
         
       </div>
     </nav>

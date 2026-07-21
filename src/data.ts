@@ -1,10 +1,17 @@
 import { Product } from './types';
 
 export const CATEGORIES = [
-  'Groceries',
-  'Everything Else',
-  'Pharmacy',
-  'Wholesale',
+  'dairy, chilled & eggs',
+  'food cupboard',
+  'drinks',
+  'frozen',
+  'fruits & vegetables',
+  'health & wellness',
+] as const;
+
+export const MAIN_TABS = [
+  'Categories',
+  'Promotion',
   'Store Finder',
 ] as const;
 
@@ -19,7 +26,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'any2',
     rating: 4.1,
     reviewsCount: 86,
-    category: 'Groceries',
+    category: 'frozen',
     subCategory: 'Frozen Food',
     description: 'Crispy seaweed wrapped chicken bites, perfect for air frying or deep frying. A family-favorite finger food snack filled with rich savory flavors.',
     unit: '400g'
@@ -34,7 +41,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'save',
     rating: 4.7,
     reviewsCount: 92,
-    category: 'Groceries',
+    category: 'drinks',
     subCategory: 'Beverages',
     description: 'Refreshingly sweet herbal beverage containing real longan and red date extracts, loved for its cooling properties. Perfectly suited for hot afternoons.',
     unit: '24 x 250ml'
@@ -49,7 +56,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'spend',
     rating: 4.4,
     reviewsCount: 39,
-    category: 'Groceries',
+    category: 'food cupboard',
     subCategory: 'Rice & Cooking Essentials',
     description: 'Premium quality Thai Hom Mali fragrant rice, freshly milled. Known for its distinct floral aroma, fluffy texture, and delicious taste.',
     unit: '5kg'
@@ -63,7 +70,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'any2',
     rating: 4.8,
     reviewsCount: 17,
-    category: 'Everything Else',
+    category: 'health & wellness',
     subCategory: 'Household',
     description: 'Formulated with organic ingredients, these plant-based 4-in-1 capsules remove stains, eliminate odors, soften clothes, and provide 99.9% antibacterial protection.',
     unit: '20 pods'
@@ -79,7 +86,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'spend',
     rating: 4.9,
     reviewsCount: 312,
-    category: 'Groceries',
+    category: 'food cupboard',
     subCategory: 'Rice & Cooking Essentials',
     description: 'Highly acclaimed premium white rice imported from Thailand. Soft, aromatic, and delicious when served hot.',
     unit: '5kg'
@@ -93,7 +100,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'save',
     rating: 4.8,
     reviewsCount: 144,
-    category: 'Groceries',
+    category: 'dairy, chilled & eggs',
     subCategory: 'Dairy & Chilled',
     description: '100% fresh milk from high-quality cows. Smooth and rich, containing natural calcium and vitamins for active daily lifestyles.',
     unit: '2L'
@@ -107,7 +114,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'save',
     rating: 4.6,
     reviewsCount: 220,
-    category: 'Everything Else',
+    category: 'health & wellness',
     subCategory: 'Personal Care',
     description: 'Gentle skin cleansers that deliver skin-natural nutrients. Moisturizes deeply to keep skin soft, healthy, and hydrated.',
     unit: '1L'
@@ -121,7 +128,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'save',
     rating: 4.3,
     reviewsCount: 54,
-    category: 'Groceries',
+    category: 'frozen',
     subCategory: 'Fresh & Frozen Meat',
     description: 'Juicy, premium boneless chicken legs. Perfect for barbecues, stir-fries, roasts, or dicing for daily protein dishes.',
     unit: '2kg'
@@ -135,7 +142,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'buy2',
     rating: 4.5,
     reviewsCount: 61,
-    category: 'Groceries',
+    category: 'fruits & vegetables',
     subCategory: 'Fresh Vegetables',
     description: 'Freshly harvested carrots, rich in Beta-Carotene and vitamins. Crisp and crunchy, ideal for boiling, juicing, or salads.',
     unit: '500g'
@@ -149,7 +156,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'hot',
     rating: 4.7,
     reviewsCount: 42,
-    category: 'Groceries',
+    category: 'food cupboard',
     subCategory: 'Bakery',
     description: 'Baked fresh daily with a nutritious blend of multiple healthy grains, seeds, and toasted malts. Perfectly sliced for sandwiches.',
     unit: '450g'
@@ -163,7 +170,7 @@ export const PRODUCTS: Product[] = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLtDi7rR0VVxEqDqCb3W8CoaoRBA-EhQMzi2xaPzcJmu6FgAKo8cmgp9qv1KUjlJ27-CUt99rjntosI23TNVlG1ln8Yyl9CIDK-eO6q25jjOE23EAFQhcgLoveGXG8ep_8LUyLAllyuRxVV4KMWLjqjfC9C7yEoyuBBdxU6eKD4OX8x4c5c0zAGN3HnSPukohzAUx6F-5NUe5BFDJbBjX7qCVBF27ykIu2hbhECdtoySP3l4Z3RuMgLFRA',
     rating: 4.2,
     reviewsCount: 78,
-    category: 'Groceries',
+    category: 'fruits & vegetables',
     subCategory: 'Fresh Fruits',
     description: 'Juicy, sweet, and seedless. A hydration booster perfect for refreshing drinks, fruit bowls, or cold summer snacks.',
     unit: '1 piece'
@@ -175,7 +182,7 @@ export const PRODUCTS: Product[] = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLsxCSTPZczD5OLZQv8WYAkvErhPVE8gfV4SjRDwvp7dEAWX8cIC1rND0LlQJcAkCu1RowmmzPlw2bs3l7_BWdTGVALLXkleF8-fhqgdZUsVn9fGCQDA7sO_ztC8yTPblptoECESySKFn0b8u3rZ01P0vz_hjtOtmgBHHYttsHhZO-0AVSwyk6RQ63bG0EKKyGWSAKmTYwlsKa5hHRqiyGPHxGPTIpNT7uDv-i0XPTcZFa-9mPOkq9XmS6Q',
     rating: 4.6,
     reviewsCount: 112,
-    category: 'Groceries',
+    category: 'dairy, chilled & eggs',
     subCategory: 'Frozen Food',
     description: 'Cold-smoked Norwegian salmon, thinly pre-sliced. Perfect for breakfast toast with cream cheese, salads, or high-end platters.',
     unit: '100g'
@@ -189,7 +196,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'exclusive',
     rating: 4.8,
     reviewsCount: 89,
-    category: 'Groceries',
+    category: 'dairy, chilled & eggs',
     subCategory: 'Dairy & Chilled',
     description: 'Thick and creamy classic Greek style yogurt with 15g of protein per serving. No added sugar, optimal for breakfast or pre-workouts.',
     unit: '500g'
@@ -201,7 +208,7 @@ export const PRODUCTS: Product[] = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLsAjAuZXV8ZFM6k9qxZdcSUXp2ixlbFyWpGEyDTF_W7yoWbJVhgMKxnKodzhPhtenEhmL__cjvQNM-arENl6jxSjkn6zKjQfb5ZCqG1ASS-mgEzi9DExClmRhDwwkKE3qWyKU64jR9eSPgfGn7vSTrCOUSoBHdDV5JcZhoArcgFqbOw8edQyfqhLpVWOkSy2L24jXP-7Itt6sR7OmKrL2ig3JcohP1UZrvNNMyJaCSZTeTGxpy9uEo2Uh0',
     rating: 4.4,
     reviewsCount: 95,
-    category: 'Groceries',
+    category: 'frozen',
     subCategory: 'Fresh & Frozen Meat',
     description: 'Individual Quick Frozen (IQF) chicken drumsticks that can be taken out and cooked one by one. Retains peak freshness and taste.',
     unit: '1kg'
@@ -213,24 +220,24 @@ export const PRODUCTS: Product[] = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPAkYpfA6RVF-NWV4gF9GqlftJEpAReSSpu-TpqNnvbNH1tMZ95mpug2srCLgPCs83nBQs3T6ckioUNopduJXHawA24vFsPlyxVbe_vr4q6RcCWkcaWiMdSUxs4y91BkiQsO_Xn1q_DIWm-UCEkVV9Hres1FABuTds-z_cmEhQZ-49S1HALLescbZevmy0qcGaQ9RP8V-XjX9BlDhoCRTmtn9SEzk2gUTqlQ0SZbN9qmzvXGKKoHbX',
     rating: 4.8,
     reviewsCount: 204,
-    category: 'Pharmacy',
+    category: 'health & wellness',
     subCategory: 'Oral Care',
     description: 'Kills up to 99.9% of bacteria causing bad breath, plaque, and gum problems. Provides intense cool mint freshness for 24-hour protection.',
     unit: '2 x 1L'
   },
 
   // --- ADDITIONAL PRODUCT COVERAGE FOR BEAUTIFUL CATEGORIES ---
-  // Pharmacy
+  // Health & Wellness
   {
     id: 'ph1',
     name: 'Panadol Extra Pain Relief Optizorb',
     price: 8.50,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPAkYpfA6RVF-NWV4gF9GqlftJEpAReSSpu-TpqNnvbNH1tMZ95mpug2srCLgPCs83nBQs3T6ckioUNopduJXHawA24vFsPlyxVbe_vr4q6RcCWkcaWiMdSUxs4y91BkiQsO_Xn1q_DIWm-UCEkVV9Hres1FABuTds-z_cmEhQZ-49S1HALLescbZevmy0qcGaQ9RP8V-XjX9BlDhoCRTmtn9SEzk2gUTqlQ0SZbN9qmzvXGKKoHbX', // fallback
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600',
     badge: 'Popular',
     badgeType: 'hot',
     rating: 4.9,
     reviewsCount: 410,
-    category: 'Pharmacy',
+    category: 'health & wellness',
     subCategory: 'Medicine & Relief',
     description: 'Fast acting pain relief designed with Optizorb formulation. Tough on headache, toothache, and body aches while remaining gentle on stomachs.',
     unit: '20 Caplets'
@@ -240,18 +247,78 @@ export const PRODUCTS: Product[] = [
     name: 'Redoxon Double Action Vitamin C + Zinc',
     price: 24.90,
     originalPrice: 29.90,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPAkYpfA6RVF-NWV4gF9GqlftJEpAReSSpu-TpqNnvbNH1tMZ95mpug2srCLgPCs83nBQs3T6ckioUNopduJXHawA24vFsPlyxVbe_vr4q6RcCWkcaWiMdSUxs4y91BkiQsO_Xn1q_DIWm-UCEkVV9Hres1FABuTds-z_cmEhQZ-49S1HALLescbZevmy0qcGaQ9RP8V-XjX9BlDhoCRTmtn9SEzk2gUTqlQ0SZbN9qmzvXGKKoHbX', // fallback
+    image: 'https://images.unsplash.com/photo-1616679911721-eff6eec18fcd?auto=format&fit=crop&q=80&w=600',
     badge: 'Save $5.00',
     badgeType: 'save',
     rating: 4.8,
     reviewsCount: 153,
-    category: 'Pharmacy',
+    category: 'health & wellness',
     subCategory: 'Vitamins & Supplements',
     description: 'Effervescent immune booster containing 1000mg Vitamin C and 10mg Zinc. Dissolves quickly in water with a refreshing orange taste.',
     unit: '30 Tablets'
   },
 
-  // Wholesale
+  // Additional Drinks
+  {
+    id: 'dr1',
+    name: 'Coca-Cola Zero Sugar 24 x 320ml',
+    price: 14.50,
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=600',
+    badge: 'Any 2 At $9.95',
+    badgeType: 'any2',
+    rating: 4.8,
+    reviewsCount: 412,
+    category: 'drinks',
+    subCategory: 'Carbonated Drinks',
+    description: 'Great Coca-Cola taste with zero sugar and zero calories. Perfect refreshing beverage to stock up for gatherings and parties.',
+    unit: '24 x 320ml'
+  },
+  {
+    id: 'dr2',
+    name: 'Yeo\'s Chrysanthemum Tea 6 x 250ml',
+    price: 3.10,
+    image: 'https://lh3.googleusercontent.com/aida/AP1WRLvWirXtFj7HQjSr75yb_NVQMCCzIX_wGkX6hjucQv8fby95KOAl2XMXrxO7-YX79DLvtohzFvXSco4onxeGjRkZAoSnOF0URFc4NrkUuo-xshN5euOiRAlOddNeeLiO9X_6sCeACG4vebJMSNAnROqbMQoogRdZEAXFhRzgxxgBcY28gJ2YgC8Olx3HFqjI_7dC3p77t4v4CmwavVO-ECk5z7FSqN791TyjWYEHdmVq8ZNIxRa7lcouQg',
+    badge: 'Hot',
+    badgeType: 'hot',
+    rating: 4.7,
+    reviewsCount: 125,
+    category: 'drinks',
+    subCategory: 'Asian Drinks',
+    description: 'Traditionally brewed from high quality chrysanthemum flowers, providing a delicate and refreshing floral experience.',
+    unit: '6 x 250ml'
+  },
+
+  // Additional Fruits & Veg
+  {
+    id: 'fv1',
+    name: 'Premium Zespri Sungold Kiwifruit',
+    price: 6.95,
+    image: 'https://images.unsplash.com/photo-1585059895524-72359e06133a?auto=format&fit=crop&q=80&w=600',
+    badge: 'Popular',
+    badgeType: 'hot',
+    rating: 4.9,
+    reviewsCount: 184,
+    category: 'fruits & vegetables',
+    subCategory: 'Fresh Fruits',
+    description: 'Sweet, juicy and golden-fleshed kiwifruits imported from New Zealand. Pack of nutrition, exceptionally rich in Vitamin C.',
+    unit: '4 pieces'
+  },
+  {
+    id: 'fv2',
+    name: 'Pasar Organic Baby Spinach 150g',
+    price: 2.50,
+    image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=600',
+    badge: 'Fresh Deal',
+    badgeType: 'exclusive',
+    rating: 4.6,
+    reviewsCount: 72,
+    category: 'fruits & vegetables',
+    subCategory: 'Fresh Vegetables',
+    description: 'Tender and nutritious pre-washed baby spinach leaves. Perfect for raw salads, light stir frying, or healthy smoothies.',
+    unit: '150g'
+  },
+
+  // Food Cupboard Bulk / Standard
   {
     id: 'ws1',
     name: 'Bulk SongHe AAA Thai Hom Mali Rice',
@@ -261,7 +328,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'buy2',
     rating: 4.9,
     reviewsCount: 912,
-    category: 'Wholesale',
+    category: 'food cupboard',
     subCategory: 'Bulk Grains',
     description: 'Value pack bulk sizing of premium SongHe Hom Mali rice. Perfect for large families, caterers, or long term storage.',
     unit: '10kg'
@@ -276,7 +343,7 @@ export const PRODUCTS: Product[] = [
     badgeType: 'save',
     rating: 4.6,
     reviewsCount: 318,
-    category: 'Wholesale',
+    category: 'drinks',
     subCategory: 'Bulk Drinks',
     description: 'Bulk carton of refreshing Chrysanthemum Tea. Lower in sugar, lightly sweetened, and highly popular for events or parties.',
     unit: '48 x 250ml'

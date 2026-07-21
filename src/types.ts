@@ -8,7 +8,7 @@ export interface Product {
   badgeType?: 'save' | 'any2' | 'spend' | 'hot' | 'buy2' | 'exclusive';
   rating?: number;
   reviewsCount?: number;
-  category: 'Groceries' | 'Everything Else' | 'Pharmacy' | 'Wholesale' | 'Store Finder';
+  category: 'dairy, chilled & eggs' | 'food cupboard' | 'drinks' | 'frozen' | 'fruits & vegetables' | 'health & wellness';
   subCategory?: string;
   description: string;
   unit?: string;
