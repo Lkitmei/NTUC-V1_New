@@ -525,7 +525,6 @@ export default function App() {
                   
                   {/* Countdown Timer */}
                   <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-on-surface-variant font-semibold">
-                    <Timer className="w-3.5 h-3.5 text-fp-red animate-[pulse_1s_infinite]" />
                     <span className="text-outline uppercase tracking-wider font-extrabold text-[10px]">End in</span>
                     <div className="flex items-center gap-0.5 font-mono text-xs font-bold">
                       <span className="bg-fp-red text-white px-2 py-0.5 rounded shadow-sm min-w-[22px] text-center">
