@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Search, MapPin, User, LogOut, HelpCircle, ChevronDown, Sparkles, Flame, X, Heart } from 'lucide-react';
+import { ShoppingCart, Search, MapPin, User, LogOut, HelpCircle, ChevronDown, Sparkles, Flame, X, Heart, Users } from 'lucide-react';
 import { CATEGORIES, MAIN_TABS } from '../data';
 
 interface HeaderProps {
@@ -323,6 +323,25 @@ export default function Header({
             >
               <MapPin className="w-3.5 h-3.5" />
               <span>Store Finder</span>
+            </button>
+
+            {/* Social Main Tab */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Social');
+                setSearchQuery('');
+                setIsDropdownOpen(false);
+              }}
+              className={`py-1.5 px-4 rounded-lg font-bold text-xs whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'Social'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-gray'
+              }`}
+              id="main-tab-social"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Social</span>
             </button>
 
             {/* My List beside Store Finder */}

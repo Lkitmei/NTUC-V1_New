@@ -13,6 +13,7 @@ export const MAIN_TABS = [
   'Categories',
   'Promotion',
   'Store Finder',
+  'Social',
 ] as const;
 
 export const PRODUCTS: Product[] = [

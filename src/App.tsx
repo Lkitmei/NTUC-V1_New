@@ -11,6 +11,7 @@ import CheckoutModal from './components/CheckoutModal';
 import StoreFinderTab from './components/StoreFinderTab';
 import HelpCentreModal from './components/HelpCentreModal';
 import AuthModal from './components/AuthModal';
+import SocialTab from './components/SocialTab';
 
 const formatCategoryName = (cat: string) => {
   if (cat === 'dairy, chilled & eggs') return 'Dairy, Chilled & Eggs';
@@ -287,6 +288,10 @@ export default function App() {
         {activeTab === 'Store Finder' && searchQuery === '' ? (
           <div className="my-6">
             <StoreFinderTab />
+          </div>
+        ) : activeTab === 'Social' && searchQuery === '' ? (
+          <div className="my-6">
+            <SocialTab />
           </div>
         ) : searchQuery !== '' ? (
           /* Search results page */
