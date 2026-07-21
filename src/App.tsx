@@ -53,30 +53,49 @@ export default function App() {
       tag: "Fresh Produce",
       title: "Quality and Freshness Guaranteed",
       description: "Handpicked fresh fruits and vegetables, chilled to preserve peak nutrients, and delivered straight to your door.",
-      badgeColor: "bg-fp-red"
+      badgeColor: "bg-fp-red",
+      isGraphic: false
+    },
+    {
+      image: "https://lh3.googleusercontent.com/aida/AP1WRLvqZ27hzoK0jsIDjYO6ybgyfX2HlIdxWsCvhRuqtO5_Fwd5wnVK67Rpxb-3d0TCz5NB8C3LtTZyJTO-o6jcuZu-KZKOrkWob3GOhmyDKD2J1rXTte-BhqVek9dQd08cW4Anre_sbTpFsj-uNHZTdfvdxtvq1lO4zqJziau6SfI8uucIPy5U7247KTmr72GJd9w9AP50Pk9SH7nrgIMlArCtU83QiNmuA4gzPDQnl_0m_2Y-W-fgCKpfZXo",
+      tag: "Weekly Deals",
+      title: "Weekly Exclusive Offers",
+      description: "Get 20% off and save on special weekly items.",
+      badgeColor: "bg-fp-red",
+      isGraphic: true
     },
     {
       image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=1200",
       tag: "Great Value Specials",
       title: "Stock Up Your Pantry & Cupboard",
       description: "Enjoy bulk savings and exclusive discounts on your favorite grains, noodles, and daily household needs.",
-      badgeColor: "bg-amber-600"
+      badgeColor: "bg-amber-600",
+      isGraphic: false
+    },
+    {
+      image: "https://lh3.googleusercontent.com/aida/AP1WRLtyFdfsyWvwt7p47MfKeBfCeZoEqFQS7dOadI8RBogOTBQspesTMAcnheLKhvt0Quu3iD6DnXCDWmEAmfc7PqeePnuKVRzZ_2GoWUL7_lM5W_QvkjHV1pTtwgt7OuuDKPSJ8oKuxOQTHUcxW12w6DXuH5h5gYHpJkV3j_mMll90VRO7GiVeWMBEw1jgTC-cx1jdnR-luLT8GICfZKi56cH6sGBwohgAHC2-q-X-JTb0Z8yYT14odrJiPQ",
+      tag: "Price Freeze",
+      title: "Price Freeze Essentials",
+      description: "Daily essentials locked at low prices for your wallet.",
+      badgeColor: "bg-blue-600",
+      isGraphic: true
     },
     {
       image: "https://images.unsplash.com/photo-1543083503-087771d1471d?auto=format&fit=crop&q=80&w=1200",
       tag: "Chilled & Dairy",
       title: "Cold Drinks, Dairy & Farm Fresh Eggs",
       description: "Keep cool with refreshing beverages, high-protein yogurts, organic milk, and golden yolk eggs.",
-      badgeColor: "bg-primary"
+      badgeColor: "bg-primary",
+      isGraphic: false
     }
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSliderIndex((prev) => (prev + 1) % 3);
+      setSliderIndex((prev) => (prev + 1) % sliderBanners.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, []);
+  }, [sliderBanners.length]);
 
   // --- EFFECTS FOR SYNCING ---
   useEffect(() => {
@@ -345,15 +364,20 @@ export default function App() {
           /* MAIN HOME DASHBOARD (Groceries tab) */
           <>
             {/* Hero Section */}
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
-              
-              {/* Primary Large Banner - Shorter height to fit Flash Deals in view */}
-              <div className="lg:col-span-8 rounded-2xl overflow-hidden relative group shadow-sm h-[160px] sm:h-[220px] lg:h-[240px]">
+            <section className="mb-6">
+              <div className="w-full rounded-2xl overflow-hidden relative group shadow-sm h-[180px] sm:h-[240px] lg:h-[280px]">
                 {/* Sliders with beautiful transition crossfade */}
                 {sliderBanners.map((banner, index) => (
                   <div
                     key={index}
+                    onClick={() => {
+                      if (banner.isGraphic) {
+                        document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
                     className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                      banner.isGraphic ? 'cursor-pointer' : ''
+                    } ${
                       index === sliderIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                     }`}
                   >
@@ -361,30 +385,44 @@ export default function App() {
                       className="w-full h-full bg-cover bg-center" 
                       style={{ backgroundImage: `url('${banner.image}')` }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
                     
-                    <div className="absolute inset-0 flex items-center p-4 sm:p-8">
-                      <div className="text-white max-w-xs sm:max-w-md space-y-2">
-                        <span className={`${banner.badgeColor} text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
+                    {banner.isGraphic ? (
+                      /* Promotional design banner (already has text in the graphic) */
+                      <>
+                        <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors" />
+                        <div className="absolute bottom-4 left-4 sm:left-8 bg-black/45 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold tracking-wider uppercase">
                           {banner.tag}
-                        </span>
-                        <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
-                          {banner.title}
-                        </h1>
-                        <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
-                          {banner.description}
-                        </p>
-                        <button 
-                          onClick={() => {
-                            document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                          className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
-                        >
-                          Shop Fresh Products
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
+                        </div>
+                      </>
+                    ) : (
+                      /* Custom HTML overlay banner */
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
+                        <div className="absolute inset-0 flex items-center p-4 sm:p-8">
+                          <div className="text-white max-w-xs sm:max-w-md space-y-2">
+                            <span className={`${banner.badgeColor} text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider`}>
+                              {banner.tag}
+                            </span>
+                            <h1 className="font-headline-lg text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight tracking-tight text-white">
+                              {banner.title}
+                            </h1>
+                            <p className="text-[10px] sm:text-xs text-white/95 leading-relaxed font-medium max-w-[240px] sm:max-w-none">
+                              {banner.description}
+                            </p>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                document.getElementById('recommended-section')?.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="bg-white text-primary hover:bg-surface-gray font-bold px-4 py-1.5 rounded-lg text-[10px] sm:text-xs transition-all shadow shadow-black/25 flex items-center gap-1 active:scale-95"
+                            >
+                              Shop Fresh Products
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
 
@@ -392,7 +430,7 @@ export default function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSliderIndex((prev) => (prev - 1 + 3) % 3);
+                    setSliderIndex((prev) => (prev - 1 + sliderBanners.length) % sliderBanners.length);
                   }}
                   className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
                   aria-label="Previous Slide"
@@ -402,7 +440,7 @@ export default function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSliderIndex((prev) => (prev + 1) % 3);
+                    setSliderIndex((prev) => (prev + 1) % sliderBanners.length);
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
                   aria-label="Next Slide"
@@ -412,7 +450,7 @@ export default function App() {
 
                 {/* Dots Indicators */}
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-                  {[0, 1, 2].map((i) => (
+                  {sliderBanners.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setSliderIndex(i)}
@@ -424,27 +462,6 @@ export default function App() {
                   ))}
                 </div>
               </div>
-
-              {/* Sidebar Secondary banners - Scaled shorter to match */}
-              <div className="lg:col-span-4 flex flex-row lg:flex-col gap-4 h-[80px] sm:h-[110px] lg:h-[240px]">
-                <div className="flex-1 rounded-2xl overflow-hidden shadow-sm relative group cursor-pointer">
-                  <img 
-                    alt="Weekly offers banner" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" 
-                    src="https://lh3.googleusercontent.com/aida/AP1WRLvqZ27hzoK0jsIDjYO6ybgyfX2HlIdxWsCvhRuqtO5_Fwd5wnVK67Rpxb-3d0TCz5NB8C3LtTZyJTO-o6jcuZu-KZKOrkWob3GOhmyDKD2J1rXTte-BhqVek9dQd08cW4Anre_sbTpFsj-uNHZTdfvdxtvq1lO4zqJziau6SfI8uucIPy5U7247KTmr72GJd9w9AP50Pk9SH7nrgIMlArCtU83QiNmuA4gzPDQnl_0m_2Y-W-fgCKpfZXo"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
-                </div>
-                <div className="flex-1 rounded-2xl overflow-hidden shadow-sm relative group cursor-pointer">
-                  <img 
-                    alt="Price freeze essentials banner" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" 
-                    src="https://lh3.googleusercontent.com/aida/AP1WRLtyFdfsyWvwt7p47MfKeBfCeZoEqFQS7dOadI8RBogOTBQspesTMAcnheLKhvt0Quu3iD6DnXCDWmEAmfc7PqeePnuKVRzZ_2GoWUL7_lM5W_QvkjHV1pTtwgt7OuuDKPSJ8oKuxOQTHUcxW12w6DXuH5h5gYHpJkV3j_mMll90VRO7GiVeWMBEw1jgTC-cx1jdnR-luLT8GICfZKi56cH6sGBwohgAHC2-q-X-JTb0Z8yYT14odrJiPQ"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
-                </div>
-              </div>
-
             </section>
 
             {/* Flash Deals Horizontal Carousel */}
