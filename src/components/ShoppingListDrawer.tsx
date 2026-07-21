@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Trash2, Heart, ShoppingCart, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Trash2, Heart, ShoppingCart, Sparkles, Check } from 'lucide-react';
 import { Product } from '../types';
 
 interface ShoppingListDrawerProps {
@@ -23,9 +23,45 @@ export default function ShoppingListDrawer({
   onProductClick,
   isProductInCart,
 }: ShoppingListDrawerProps) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Initialize selected IDs to all items NOT already in cart when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      const defaultSelected = favoriteProducts
+        .filter((p) => !isProductInCart(p.id))
+        .map((p) => p.id);
+      setSelectedIds(defaultSelected);
+    }
+  }, [isOpen, favoriteProducts, isProductInCart]);
+
   if (!isOpen) return null;
 
-  const itemsToAdd = favoriteProducts.filter((p) => !isProductInCart(p.id));
+  const itemsNotInCart = favoriteProducts.filter((p) => !isProductInCart(p.id));
+  const selectedProductsToQuantity = favoriteProducts.filter(
+    (p) => selectedIds.includes(p.id) && !isProductInCart(p.id)
+  );
+
+  const toggleSelect = (productId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    const allNotInCartSelected = itemsNotInCart.every((p) => selectedIds.includes(p.id));
+
+    if (allNotInCartSelected) {
+      // Deselect all that are not in cart
+      setSelectedIds((prev) => prev.filter((id) => !itemsNotInCart.some((p) => p.id === id)));
+    } else {
+      // Select all that are not in cart
+      const notInCartIds = itemsNotInCart.map((p) => p.id);
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...notInCartIds])));
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -62,7 +98,7 @@ export default function ShoppingListDrawer({
           {favoriteProducts.length > 0 && (
             <div className="bg-amber-50 border-b border-amber-100 px-6 py-2.5 flex items-center gap-1.5 text-[11px] text-amber-800 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0 animate-pulse" />
-              <span>Tap on any item to view details or add them directly to your cart!</span>
+              <span>Tap on any item to view details, toggle selection, or add to cart!</span>
             </div>
           )}
 
@@ -85,62 +121,123 @@ export default function ShoppingListDrawer({
                 </button>
               </div>
             ) : (
-              favoriteProducts.map((product) => (
-                <div 
-                  key={product.id}
-                  className="flex items-center gap-3 p-3 bg-white border border-surface-gray rounded-xl hover:shadow-sm transition-all group cursor-pointer"
-                  onClick={() => onProductClick(product)}
-                >
-                  {/* Product Image */}
-                  <div className="w-16 h-16 bg-surface-container-lowest border border-surface-gray rounded-lg p-1.5 flex-shrink-0 flex items-center justify-center">
-                    <img 
-                      src={product.image} 
-                      alt={product.name} 
-                      className="w-full h-full object-contain"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-
-                  {/* Info details */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xs sm:text-sm font-semibold text-text-main truncate group-hover:text-primary transition-colors">
-                      {product.name}
-                    </h4>
-                    <span className="text-[10px] text-outline block mb-0.5">
-                      {product.unit}
-                    </span>
-                    <span className="text-fp-red font-bold text-sm">
-                      ${product.price.toFixed(2)}
+              <div className="space-y-4">
+                {/* Select All Row */}
+                {itemsNotInCart.length > 0 && (
+                  <div 
+                    onClick={handleSelectAll}
+                    className="flex items-center gap-3 px-3 py-2.5 bg-surface-gray/50 border border-outline-variant/30 rounded-xl cursor-pointer hover:bg-surface-gray transition-colors select-none"
+                  >
+                    <div className="flex-shrink-0">
+                      <div 
+                        className={`w-5 h-5 rounded flex items-center justify-center transition-all ${
+                          itemsNotInCart.every((p) => selectedIds.includes(p.id))
+                            ? 'bg-primary border-primary text-white shadow-sm'
+                            : 'border border-outline bg-white'
+                        }`}
+                      >
+                        {itemsNotInCart.every((p) => selectedIds.includes(p.id)) && (
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs sm:text-sm font-semibold text-text-main">
+                      Select All ({itemsNotInCart.length} {itemsNotInCart.length === 1 ? 'item' : 'items'} to add)
                     </span>
                   </div>
+                )}
 
-                  {/* Action buttons */}
-                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                    {/* Add to Cart button */}
-                    <button
-                      onClick={() => onAddToCart(product)}
-                      disabled={isProductInCart(product.id)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                        isProductInCart(product.id)
-                          ? 'bg-green-100 text-green-700 font-bold border border-green-200'
-                          : 'bg-primary hover:bg-primary-container text-white shadow-sm hover:scale-105 active:scale-95'
+                {favoriteProducts.map((product) => {
+                  const inCart = isProductInCart(product.id);
+                  const isSelected = selectedIds.includes(product.id);
+
+                  return (
+                    <div 
+                      key={product.id}
+                      className={`flex items-center gap-3 p-3 bg-white border rounded-xl hover:shadow-sm transition-all group cursor-pointer ${
+                        isSelected && !inCart ? 'border-primary/30 bg-primary/5' : 'border-surface-gray'
                       }`}
-                      title={isProductInCart(product.id) ? "Already in cart" : "Add to cart"}
+                      onClick={() => onProductClick(product)}
                     >
-                      <ShoppingCart className="w-4 h-4" />
-                    </button>
+                      {/* Checkbox */}
+                      <div 
+                        className="flex-shrink-0" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!inCart) {
+                            toggleSelect(product.id);
+                          }
+                        }}
+                      >
+                        {inCart ? (
+                          <div className="w-5 h-5 rounded bg-green-100 text-green-700 flex items-center justify-center border border-green-200 cursor-not-allowed" title="Already in cart">
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div 
+                            className={`w-5 h-5 rounded flex items-center justify-center transition-all ${
+                              isSelected 
+                                ? 'bg-primary border-primary text-white shadow-sm scale-105' 
+                                : 'border border-outline hover:border-primary bg-white'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Delete button */}
-                    <button
-                      onClick={() => onToggleFavorite(product.id)}
-                      className="w-8 h-8 rounded-full bg-surface-gray text-outline hover:text-fp-red hover:bg-red-50 flex items-center justify-center transition-all active:scale-95"
-                      title="Remove from list"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))
+                      {/* Product Image */}
+                      <div className="w-16 h-16 bg-surface-container-lowest border border-surface-gray rounded-lg p-1.5 flex-shrink-0 flex items-center justify-center">
+                        <img 
+                          src={product.image} 
+                          alt={product.name} 
+                          className="w-full h-full object-contain"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+
+                      {/* Info details */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs sm:text-sm font-semibold text-text-main truncate group-hover:text-primary transition-colors">
+                          {product.name}
+                        </h4>
+                        <span className="text-[10px] text-outline block mb-0.5">
+                          {product.unit}
+                        </span>
+                        <span className="text-fp-red font-bold text-sm">
+                          ${product.price.toFixed(2)}
+                        </span>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        {/* Add to Cart button */}
+                        <button
+                          onClick={() => onAddToCart(product)}
+                          disabled={inCart}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                            inCart
+                              ? 'bg-green-100 text-green-700 font-bold border border-green-200'
+                              : 'bg-primary hover:bg-primary-container text-white shadow-sm hover:scale-105 active:scale-95'
+                          }`}
+                          title={inCart ? "Already in cart" : "Add to cart"}
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                        </button>
+
+                        {/* Delete button */}
+                        <button
+                          onClick={() => onToggleFavorite(product.id)}
+                          className="w-8 h-8 rounded-full bg-surface-gray text-outline hover:text-fp-red hover:bg-red-50 flex items-center justify-center transition-all active:scale-95"
+                          title="Remove from list"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 
@@ -148,17 +245,23 @@ export default function ShoppingListDrawer({
           {favoriteProducts.length > 0 && (
             <div className="border-t border-outline-variant p-5 bg-surface-container-lowest space-y-2.5">
               <button
-                onClick={() => onAddAllToCart(itemsToAdd)}
-                disabled={itemsToAdd.length === 0}
+                onClick={() => {
+                  onAddAllToCart(selectedProductsToQuantity);
+                  // clear selectedIds for items that were just added
+                  setSelectedIds((prev) => prev.filter((id) => !selectedProductsToQuantity.some((p) => p.id === id)));
+                }}
+                disabled={selectedProductsToQuantity.length === 0}
                 className={`w-full font-bold py-3 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 active:scale-98 ${
-                  itemsToAdd.length === 0
+                  selectedProductsToQuantity.length === 0
                     ? 'bg-surface-gray text-outline cursor-not-allowed border border-outline-variant/10'
                     : 'bg-primary hover:bg-primary-container text-white cursor-pointer'
                 }`}
-                id="add-all-list-to-cart-btn"
+                id="add-selected-to-cart-btn"
               >
                 <ShoppingCart className="w-4 h-4" />
-                {itemsToAdd.length === 0 ? 'All Items in Cart' : `Add List to Cart (${itemsToAdd.length} ${itemsToAdd.length === 1 ? 'item' : 'items'})`}
+                {selectedProductsToQuantity.length === 0 
+                  ? 'No Items Selected' 
+                  : `Add Selected to Cart (${selectedProductsToQuantity.length} ${selectedProductsToQuantity.length === 1 ? 'item' : 'items'})`}
               </button>
               
               <button
