@@ -10,6 +10,8 @@ interface ProductCardProps {
   isAdded: boolean;
   quantity: number;
   onUpdateQuantity: (productId: string, quantity: number) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (productId: string) => void;
 }
 
 export default function ProductCard({
@@ -19,8 +21,12 @@ export default function ProductCard({
   isAdded,
   quantity,
   onUpdateQuantity,
+  isFavorite: propIsFavorite,
+  onToggleFavorite,
 }: ProductCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [localIsFavorite, setLocalIsFavorite] = useState(false);
+
+  const isFavorite = propIsFavorite !== undefined ? propIsFavorite : localIsFavorite;
 
   // Helper for rendering badges with appropriate theme colors
   const getBadgeStyle = (type?: string) => {
@@ -57,7 +63,11 @@ export default function ProductCard({
       <button
         onClick={(e) => {
           e.stopPropagation();
-          setIsFavorite(!isFavorite);
+          if (onToggleFavorite) {
+            onToggleFavorite(product.id);
+          } else {
+            setLocalIsFavorite(!localIsFavorite);
+          }
         }}
         className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white text-outline hover:text-fp-red transition-all shadow-sm z-10"
         id={`fav-btn-${product.id}`}

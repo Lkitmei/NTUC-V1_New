@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Search, MapPin, User, LogOut, HelpCircle, ChevronDown, Sparkles, Flame, X } from 'lucide-react';
+import { ShoppingCart, Search, MapPin, User, LogOut, HelpCircle, ChevronDown, Sparkles, Flame, X, Heart } from 'lucide-react';
 import { CATEGORIES, MAIN_TABS } from '../data';
 
 interface HeaderProps {
@@ -15,6 +15,8 @@ interface HeaderProps {
   onOpenAuth: (type: 'login' | 'signup') => void;
   userEmail: string | null;
   onLogout: () => void;
+  onOpenShoppingList: () => void;
+  shoppingListItemsCount: number;
 }
 
 const formatCategoryName = (cat: string) => {
@@ -37,6 +39,8 @@ export default function Header({
   onOpenAuth,
   userEmail,
   onLogout,
+  onOpenShoppingList,
+  shoppingListItemsCount,
 }: HeaderProps) {
   const [postalCode, setPostalCode] = useState('Enter your address or postal code');
   const [isEditingPostal, setIsEditingPostal] = useState(false);
@@ -222,6 +226,24 @@ export default function Header({
               </button>
             )}
           </div>
+
+          {/* Shopping List Icon */}
+          <button
+            onClick={onOpenShoppingList}
+            className="flex items-center gap-2 text-fp-red hover:bg-red-50 border border-fp-red/20 px-4 py-2.5 rounded-xl cursor-pointer transition-all hover:shadow-sm flex-shrink-0"
+            id="shopping-list-trigger-button"
+            title="Open My Shopping List"
+          >
+            <div className="relative">
+              <Heart className="w-5 h-5 fill-fp-red text-fp-red" />
+              {shoppingListItemsCount > 0 && (
+                <span className="absolute -top-2.5 -right-2.5 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white animate-pulse">
+                  {shoppingListItemsCount}
+                </span>
+              )}
+            </div>
+            <span className="font-bold text-sm hidden md:inline">My List</span>
+          </button>
 
           {/* Cart Icon */}
           <button

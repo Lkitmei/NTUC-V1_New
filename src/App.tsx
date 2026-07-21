@@ -6,6 +6,7 @@ import Header from './components/Header';
 import ProductCard from './components/ProductCard';
 import ProductModal from './components/ProductModal';
 import CartDrawer from './components/CartDrawer';
+import ShoppingListDrawer from './components/ShoppingListDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import StoreFinderTab from './components/StoreFinderTab';
 import HelpCentreModal from './components/HelpCentreModal';
@@ -68,6 +69,7 @@ export default function App() {
   // UI Control states
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [authModal, setAuthModal] = useState<{ isOpen: boolean; type: 'login' | 'signup' }>({
@@ -114,12 +116,26 @@ export default function App() {
   }, [cart]);
 
   useEffect(() => {
+    localStorage.setItem('fp_favorites', JSON.stringify(favoriteIds));
+  }, [favoriteIds]);
+
+  useEffect(() => {
     if (userEmail) {
       localStorage.setItem('fp_user_email', userEmail);
     } else {
       localStorage.removeItem('fp_user_email');
     }
   }, [userEmail]);
+
+  // --- FAVORITES OPERATIONS ---
+  const handleToggleFavorite = (productId: string) => {
+    setFavoriteIds((prev) => {
+      if (prev.includes(productId)) {
+        return prev.filter((id) => id !== productId);
+      }
+      return [...prev, productId];
+    });
+  };
 
   // --- CART OPERATIONS ---
   const handleAddToCart = (product: Product) => {
@@ -131,6 +147,19 @@ export default function App() {
         );
       }
       return [...prevCart, { product, quantity: 1 }];
+    });
+  };
+
+  const handleAddMultipleToCart = (products: Product[]) => {
+    setCart((prevCart) => {
+      const updatedCart = [...prevCart];
+      products.forEach((product) => {
+        const existing = updatedCart.find((item) => item.product.id === product.id);
+        if (!existing) {
+          updatedCart.push({ product, quantity: 1 });
+        }
+      });
+      return updatedCart;
     });
   };
 
@@ -247,6 +276,8 @@ export default function App() {
         onOpenAuth={(type) => setAuthModal({ isOpen: true, type })}
         userEmail={userEmail}
         onLogout={handleLogout}
+        onOpenShoppingList={() => setIsShoppingListOpen(true)}
+        shoppingListItemsCount={favoriteIds.length}
       />
 
       {/* Main Content Area */}
@@ -294,6 +325,8 @@ export default function App() {
                     isAdded={isProductInCart(product.id)}
                     quantity={getProductCartQty(product.id)}
                     onUpdateQuantity={handleUpdateQty}
+                    isFavorite={favoriteIds.includes(product.id)}
+                    onToggleFavorite={handleToggleFavorite}
                   />
                 ))}
               </div>
@@ -341,6 +374,8 @@ export default function App() {
                   isAdded={isProductInCart(product.id)}
                   quantity={getProductCartQty(product.id)}
                   onUpdateQuantity={handleUpdateQty}
+                  isFavorite={favoriteIds.includes(product.id)}
+                  onToggleFavorite={handleToggleFavorite}
                 />
               ))}
             </div>
@@ -367,6 +402,8 @@ export default function App() {
                   isAdded={isProductInCart(product.id)}
                   quantity={getProductCartQty(product.id)}
                   onUpdateQuantity={handleUpdateQty}
+                  isFavorite={favoriteIds.includes(product.id)}
+                  onToggleFavorite={handleToggleFavorite}
                 />
               ))}
             </div>
@@ -480,7 +517,7 @@ export default function App() {
             {/* Flash Deals Horizontal Carousel */}
             <section className="mb-8" id="main-content-anchor">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                   <h2 className="font-headline-md text-lg sm:text-xl font-bold text-text-main flex items-center gap-1.5">
                     <Flame className="w-5 h-5 text-fp-red fill-fp-red animate-[pulse_0.8s_infinite] drop-shadow-[0_0_8px_rgba(239,68,68,0.95)] scale-110" />
                     Flash Deals
@@ -489,7 +526,7 @@ export default function App() {
                   {/* Countdown Timer */}
                   <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-on-surface-variant font-semibold">
                     <Timer className="w-3.5 h-3.5 text-fp-red animate-[pulse_1s_infinite]" />
-                    <span className="text-outline uppercase tracking-wider font-extrabold text-[10px]">Deals end in</span>
+                    <span className="text-outline uppercase tracking-wider font-extrabold text-[10px]">End in</span>
                     <div className="flex items-center gap-0.5 font-mono text-xs font-bold">
                       <span className="bg-fp-red text-white px-2 py-0.5 rounded shadow-sm min-w-[22px] text-center">
                         {String(timeLeft.hours).padStart(2, '0')}
@@ -549,42 +586,69 @@ export default function App() {
                       isAdded={isProductInCart(product.id)}
                       quantity={getProductCartQty(product.id)}
                       onUpdateQuantity={handleUpdateQty}
+                      isFavorite={favoriteIds.includes(product.id)}
+                      onToggleFavorite={handleToggleFavorite}
                     />
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* Recommended for You Grid */}
+            {/* Recommended for You Section */}
             <section className="mb-8" id="recommended-section">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-headline-md text-lg sm:text-xl font-bold text-text-main flex items-center gap-1.5">
                   <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
                   Recommended for you
                 </h2>
-                <button 
-                  onClick={() => {
-                    alert('Showing personalized item recommendations! (Simulated)');
-                  }}
-                  className="text-primary font-bold hover:underline flex items-center gap-0.5 text-xs sm:text-sm"
-                >
-                  See all
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => scrollSection('recommended-scroller', 'left')}
+                      className="w-8 h-8 rounded-full border border-outline-variant bg-white flex items-center justify-center hover:bg-surface-gray hover:text-primary transition-all text-on-surface-variant cursor-pointer"
+                      title="Scroll Left"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={() => scrollSection('recommended-scroller', 'right')}
+                      className="w-8 h-8 rounded-full border border-outline-variant bg-white flex items-center justify-center hover:bg-surface-gray hover:text-primary transition-all text-on-surface-variant cursor-pointer"
+                      title="Scroll Right"
+                    >
+                      →
+                    </button>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      alert('Showing personalized item recommendations! (Simulated)');
+                    }}
+                    className="text-primary font-bold hover:underline flex items-center gap-0.5 text-xs sm:text-sm"
+                  >
+                    See all
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* Grid Layout */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {/* Horizontal Scroll Layout */}
+              <div 
+                id="recommended-scroller"
+                className="flex gap-4 overflow-x-auto hide-scrollbar pb-2"
+              >
                 {recommendedForYou.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAddToCart={handleAddToCart}
-                    onProductClick={(p) => setSelectedProduct(p)}
-                    isAdded={isProductInCart(product.id)}
-                    quantity={getProductCartQty(product.id)}
-                    onUpdateQuantity={handleUpdateQty}
-                  />
+                  <div key={product.id} className="flex-none w-[170px] sm:w-[200px]">
+                    <ProductCard
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      onProductClick={(p) => setSelectedProduct(p)}
+                      isAdded={isProductInCart(product.id)}
+                      quantity={getProductCartQty(product.id)}
+                      onUpdateQuantity={handleUpdateQty}
+                      isFavorite={favoriteIds.includes(product.id)}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
+                  </div>
                 ))}
               </div>
             </section>
@@ -596,53 +660,53 @@ export default function App() {
                   <Flame className="w-5 h-5 text-fp-red fill-fp-red" />
                   What's hot now
                 </h2>
-                <button 
-                  onClick={() => {
-                    alert('Showing trending item recommendations! (Simulated)');
-                  }}
-                  className="text-primary font-bold hover:underline flex items-center gap-0.5 text-xs sm:text-sm"
-                >
-                  See all
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => scrollSection('hot-scroller', 'left')}
+                      className="w-8 h-8 rounded-full border border-outline-variant bg-white flex items-center justify-center hover:bg-surface-gray hover:text-primary transition-all text-on-surface-variant cursor-pointer"
+                      title="Scroll Left"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={() => scrollSection('hot-scroller', 'right')}
+                      className="w-8 h-8 rounded-full border border-outline-variant bg-white flex items-center justify-center hover:bg-surface-gray hover:text-primary transition-all text-on-surface-variant cursor-pointer"
+                      title="Scroll Right"
+                    >
+                      →
+                    </button>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      alert('Showing trending item recommendations! (Simulated)');
+                    }}
+                    className="text-primary font-bold hover:underline flex items-center gap-0.5 text-xs sm:text-sm"
+                  >
+                    See all
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* Grid layout matching mockup */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {/* Horizontal Scroll Layout */}
+              <div 
+                id="hot-scroller"
+                className="flex gap-4 overflow-x-auto hide-scrollbar pb-2"
+              >
                 {whatsHotNow.map((product) => (
-                  <div 
-                    key={product.id}
-                    className="bg-white border border-surface-gray rounded-xl p-3 flex flex-col hover:shadow-md transition-all duration-300 group cursor-pointer"
-                    onClick={() => setSelectedProduct(product)}
-                    id={`hot-product-card-${product.id}`}
-                  >
-                    <div className="aspect-square mb-3 relative flex items-center justify-center overflow-hidden bg-surface-container-lowest rounded-lg">
-                      <img 
-                        alt={product.name} 
-                        className="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105" 
-                        src={product.image}
-                        referrerPolicy="no-referrer"
-                      />
-                      {product.badge && (
-                        <span className="absolute top-1 left-1 bg-fp-red text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                          {product.badge}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex flex-col flex-1">
-                      <span className="text-fp-red font-bold text-base sm:text-lg mb-1">
-                        ${product.price.toFixed(2)}
-                      </span>
-                      <h3 className="text-xs sm:text-sm font-semibold text-text-main line-clamp-2 h-9 group-hover:text-primary transition-colors">
-                        {product.name}
-                      </h3>
-                      {product.unit && (
-                        <span className="text-[10px] text-outline mt-1 font-semibold">
-                          {product.unit}
-                        </span>
-                      )}
-                    </div>
+                  <div key={product.id} className="flex-none w-[170px] sm:w-[200px]">
+                    <ProductCard
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      onProductClick={(p) => setSelectedProduct(p)}
+                      isAdded={isProductInCart(product.id)}
+                      quantity={getProductCartQty(product.id)}
+                      onUpdateQuantity={handleUpdateQty}
+                      isFavorite={favoriteIds.includes(product.id)}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
                   </div>
                 ))}
               </div>
@@ -799,6 +863,18 @@ export default function App() {
           setIsCartOpen(false);
           setIsCheckoutOpen(true);
         }}
+      />
+
+      {/* Shopping List Drawer */}
+      <ShoppingListDrawer
+        isOpen={isShoppingListOpen}
+        onClose={() => setIsShoppingListOpen(false)}
+        favoriteProducts={PRODUCTS.filter((p) => favoriteIds.includes(p.id))}
+        onToggleFavorite={handleToggleFavorite}
+        onAddToCart={handleAddToCart}
+        onAddAllToCart={handleAddMultipleToCart}
+        onProductClick={(p) => setSelectedProduct(p)}
+        isProductInCart={isProductInCart}
       />
 
       {/* Checkout step dialog */}
