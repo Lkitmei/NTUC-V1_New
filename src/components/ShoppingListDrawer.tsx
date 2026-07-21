@@ -157,7 +157,11 @@ export default function ShoppingListDrawer({
                       className={`flex items-center gap-3 p-3 bg-white border rounded-xl hover:shadow-sm transition-all group cursor-pointer ${
                         isSelected && !inCart ? 'border-primary/30 bg-primary/5' : 'border-surface-gray'
                       }`}
-                      onClick={() => onProductClick(product)}
+                      onClick={() => {
+                        if (!inCart) {
+                          toggleSelect(product.id);
+                        }
+                      }}
                     >
                       {/* Checkbox */}
                       <div 
@@ -187,7 +191,14 @@ export default function ShoppingListDrawer({
                       </div>
 
                       {/* Product Image */}
-                      <div className="w-16 h-16 bg-surface-container-lowest border border-surface-gray rounded-lg p-1.5 flex-shrink-0 flex items-center justify-center">
+                      <div 
+                        className="w-16 h-16 bg-surface-container-lowest border border-surface-gray rounded-lg p-1.5 flex-shrink-0 flex items-center justify-center hover:scale-105 transition-transform"
+                        title="Click to view details"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onProductClick(product);
+                        }}
+                      >
                         <img 
                           src={product.image} 
                           alt={product.name} 
@@ -204,9 +215,20 @@ export default function ShoppingListDrawer({
                         <span className="text-[10px] text-outline block mb-0.5">
                           {product.unit}
                         </span>
-                        <span className="text-fp-red font-bold text-sm">
-                          ${product.price.toFixed(2)}
-                        </span>
+                        <div className="flex items-center justify-between">
+                          <span className="text-fp-red font-bold text-sm">
+                            ${product.price.toFixed(2)}
+                          </span>
+                          <span 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onProductClick(product);
+                            }}
+                            className="text-[11px] text-primary hover:underline font-bold"
+                          >
+                            View details
+                          </span>
+                        </div>
                       </div>
 
                       {/* Action buttons */}
